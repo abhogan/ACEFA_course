@@ -25,7 +25,7 @@ p1 <- ggplot(data = pertussis_AUS, aes(x = year, y = value)) +
   geom_point(col = "darkred") +
   geom_line() +
   theme_minimal() +
-  labs(x = "year", y = "cases", title = "Australia")
+  labs(x = "year", y = "pertussis notifications", title = "Australia")
 
 p1
 
@@ -33,12 +33,29 @@ p1
 p2 <- ggplot(data = pertussis_AUS, aes(x = year, y = value)) +
   geom_col(fill = "darkred") +
   theme_minimal() +
-  labs(x = "year", y = "cases", title = "Australia")
+  labs(x = "year", y = "pertussis notifications", title = "Australia")
 
 p2
 
 ###################################################################
 # What if we want to show more than a single country?
+aus_pop <- 27*1e6
+nz_pop <- 5*1e6
+
+pertussis_2 <- filter(pertussis, Country %in% c("Australia", "New Zealand")) %>%
+  mutate(value = if_else(Country == "Australia", value/aus_pop*1000000, value/nz_pop*1000000))
+
+p3 <- ggplot(data = pertussis_2, aes(x = year, y = value, fill = Country)) +
+  geom_col(position= "dodge") +
+  theme_minimal() +
+  labs(x = "year", y = "pertussis notifications per million\n(2025 population size)", title = "Australia and New Zealand") +
+  theme_minimal() +
+  scale_fill_manual(values = c("darkred", "pink"))
+
+p3
 
 ###################################################################
 # Combine plots into a single figure
+#install.packages("patchwork")
+library(patchwork)
+p2+p3
