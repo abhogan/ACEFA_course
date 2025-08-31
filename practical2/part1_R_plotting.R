@@ -59,3 +59,16 @@ p3
 #install.packages("patchwork")
 library(patchwork)
 p2+p3
+
+###################################################################
+# Another way to combine plots is using grids or facets
+p4 <- ggplot(data = pertussis_2, aes(x = year, y = value)) +
+  geom_col(position= "dodge") +
+  facet_grid(~Country) +
+  theme_minimal() +
+  labs(x = "year", y = "pertussis notifications per million\n(2025 population size)", title = "Australia and New Zealand") +
+  theme_minimal() +
+  scale_fill_manual(values = c("darkred", "pink"))
+
+p4
+
