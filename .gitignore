@@ -50,4 +50,5 @@ rsconnect/
 
 /test*
 /old
-/practical3/epinow-model-fits
+/practical3/epinow*
+
