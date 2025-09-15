@@ -38,13 +38,12 @@ sir_stoch <- function(max_time = max_time,
     prob_recovery <- gamma * dt
 
     # Implement the stochastic process for Infection and Recovery events.
-    # Note that there are a number of ways that this could be done - but here we chose to
-    # implement in the same way as was done in the spreadsheet practical.
+    # Note that there are a number of ways that this could be done.
 
     # Infection events
-    n_infect = qbinom(runif(1), S, prob_infection)
+    n_infect = rbinom(1, S, prob_infection)
     # Recovery events
-    n_recovered = qbinom(runif(1), I, prob_recovery)
+    n_recovered = rbinom(1, I, prob_recovery)
 
     # Update states
     S <- S - n_infect
