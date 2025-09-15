@@ -11,6 +11,7 @@ vignette("ggplot2", package = "ggplot2")
 
 ###################################################################
 # Let's start again with the pertussis data
+library(tidyverse)
 pertussis <- read_csv("data/pertussis_formatted.csv")
 
 # Remind ourselves of what the data look like

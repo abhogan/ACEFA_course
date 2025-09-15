@@ -108,22 +108,22 @@ ggplot(out_long, aes(x = time, y = Value, col = State)) +
   scale_color_manual(values = c("#4E94D8", "#8CD871", "#D971CD"))
 
 # What is the final attack rate proportion?
-# Hint: because of our model structure, we know that all the ever-infected population end up in R
-
+# Because of our model structure, we know that all the ever-infected population end up in R
+max(out$R)/N
 
 # What is the timing of the epidemic peak? (Hint: use the slice_max() function)
-
+slice_max(out, I)
 
 # Plot the effective reproduction number over time
+out <- out %>%
+  mutate(R_eff = beta/gamma*(S/N))
 
-
-
-
-
-
-
-
-
+ggplot(out, aes(x = time, y = R_eff)) +
+  geom_line(size = 1) +
+  labs(title = "Deterministic model",
+       x = "Time (days)", y = "Effective R") +
+  theme_minimal() +
+  geom_hline(aes(yintercept = 1), col = "red", linetype = "dashed")
 
 ######################################################
 # Now implement this model as a stochastic process
@@ -199,7 +199,7 @@ sir_ode_inc <- function(time, state, parameters) {
     dS <- -beta * S * I / N
     dI <- beta * S * I / N - gamma * I
     dR <- gamma * I
-    dInc <-   ############################
+    dInc <- beta*S*I/N # cumulative incidence
     return(list(c(dS, dI, dR, dInc)))
   })
 }
@@ -209,26 +209,34 @@ out2 <- as.data.frame(ode(y = init_state2, times = times, func = sir_ode_inc, pa
 
 head(out2)
 
-# Reformat dataframe (ggplot2 works with "long" data). Note that incidence in our model outputs is cumulative to need to calculate the difference at each timestep
+# Reformat dataframe (ggplot2 works with "long" data)
+out2 <- out2 %>%
+  mutate(Inc = Inc - lag(Inc)) %>% # Note that Inc is the cumulative incidence - so calculate the incidence at each timestep
+  select(time, I, Inc) %>%
+  pivot_longer(c(I, Inc)) %>%
+  rename(State = name,
+         Value = value)
 
+# Plot the model outputs
+ggplot(out2, aes(x = time, y = Value, col = State)) +
+  geom_line(size = 1) +
+  labs(title = "Deterministic model",
+       x = "Time (days)", y = "Number of people") +
+  theme_minimal() +
+  scale_color_manual(values = c("#4E94D8", "#8CD871", "#D971CD"))
 
+# What do we still need to do here? The incidence is calculated at each 0.1 days so we still need to aggregate over each day.
+out3 <- out2 %>%
+  pivot_wider(names_from = State,
+              values_from = Value) %>%
+  mutate(day = floor(time)) %>%
+  group_by(day) %>%
+  summarise(Inc = sum(Inc),
+            I = mean(I))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ggplot(out3) +
+  geom_line(aes(x = day, y = Inc), col = "darkgreen", linewidth = 2) +
+  theme_minimal() +
+  labs(x = "Time (days)", y = "Daily incidence")
 
 ###########################################################
