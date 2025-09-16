@@ -32,10 +32,22 @@ sir_stoch <- function(max_time = max_time,
   time <- 0
   # Set up a dataframe to store results
   stoch_out <- data.frame(time = 0, S = S0, I = I0, R = R0)
+
   while (time < max_time && I > 0) {
-    # Calculate probability of infection and recovery for each S and I
-    prob_infection <- beta * I / N *dt
-    prob_recovery <- gamma * dt
+
+    # Calculate infection and recovery rates for each S and I
+    rate_infection <- beta * I / N *dt
+    rate_recovery <- gamma * dt
+
+    # to convert the continuous rate to the probability a transition has
+    # occurred over the dt timestep, given a constant rate, the distribution
+    # of times in each state is exponentially distributed
+    # we therefore calculate the cumulative probability a transition occurs over
+    # each timestep using the rates from the model and exponential
+    # cumulative distribution function
+
+    prob_infection = 1 - exp(-rate_infection)
+    prob_recovery = 1 - exp(-rate_recovery)
 
     # Implement the stochastic process for Infection and Recovery events.
     # Note that there are a number of ways that this could be done.
